@@ -15,8 +15,7 @@ data class CLI(private val style: ConsoleOutputStyle) : InterfaceStyle {
         println(
             history.joinToString(
                 separator = "\n",
-                prefix = "$clearConsole\nRound: ${history.count() + 1}\n",
-                postfix = "\n",
+                prefix = "$clearConsole\n",
                 transform = ::format
             )
         )
