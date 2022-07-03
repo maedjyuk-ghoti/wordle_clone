@@ -7,11 +7,11 @@ class WordleCloneTest {
         assertThat(wordle("aaaaa", "aaaaa"))
             .isEqualTo(
                 listOf(
-                    Status.Correct,
-                    Status.Correct,
-                    Status.Correct,
-                    Status.Correct,
-                    Status.Correct,
+                    LetterStatus.Correct,
+                    LetterStatus.Correct,
+                    LetterStatus.Correct,
+                    LetterStatus.Correct,
+                    LetterStatus.Correct,
                 )
             )
     }
@@ -21,11 +21,11 @@ class WordleCloneTest {
         assertThat(wordle("aaaaa", "bbbbb"))
             .isEqualTo(
                 listOf(
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
                 )
             )
     }
@@ -35,11 +35,11 @@ class WordleCloneTest {
         assertThat(wordle("abbbb", "ccacc"))
             .isEqualTo(
                 listOf(
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Almost,
-                    Status.Unused,
-                    Status.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Almost,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
                 )
             )
     }
@@ -49,11 +49,11 @@ class WordleCloneTest {
         assertThat(wordle("abbbbb", "accac"))
             .isEqualTo(
                 listOf(
-                    Status.Correct,
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Unused,
+                    LetterStatus.Correct,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
                 )
             )
     }
@@ -63,11 +63,11 @@ class WordleCloneTest {
         assertThat(wordle("abbab", "accac"))
             .isEqualTo(
                 listOf(
-                    Status.Correct,
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Correct,
-                    Status.Unused,
+                    LetterStatus.Correct,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Correct,
+                    LetterStatus.Unused,
                 )
             )
     }
@@ -77,11 +77,11 @@ class WordleCloneTest {
         assertThat(wordle("ababb", "accac"))
             .isEqualTo(
                 listOf(
-                    Status.Correct,
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Almost,
-                    Status.Unused,
+                    LetterStatus.Correct,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Almost,
+                    LetterStatus.Unused,
                 )
             )
     }
@@ -91,11 +91,11 @@ class WordleCloneTest {
         assertThat(wordle("bbbab", "accac"))
             .isEqualTo(
                 listOf(
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Unused,
-                    Status.Correct,
-                    Status.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Unused,
+                    LetterStatus.Correct,
+                    LetterStatus.Unused,
                 )
             )
     }
