@@ -1,7 +1,7 @@
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class WordleCloneTest {
+class WordCheckTest {
     @Test
     fun `All letters are correct`() {
         assertThat(wordle("aaaaa", "aaaaa"))
@@ -46,7 +46,7 @@ class WordleCloneTest {
 
     @Test
     fun `Letter only used once but in correct spot first occurrence`() {
-        assertThat(wordle("abbbbb", "accac"))
+        assertThat(wordle("abbbb", "accac"))
             .isEqualTo(
                 listOf(
                     LetterStatus.Correct,
