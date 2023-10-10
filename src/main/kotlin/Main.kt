@@ -1,11 +1,10 @@
 import java.util.*
 
 fun main() {
-    val settings = Settings(isHardMode = true)
+    val settings = Settings()
     val answers: List<String> = getAnswers().getOrThrow()
     val actual: String = answers[Random(System.currentTimeMillis()).nextInt(answers.count())]
     val valids: List<String> = answers + getValids().getOrThrow()
-
     val history = mutableListOf<Round>()
 
     // display initial board state and round info
@@ -13,12 +12,10 @@ fun main() {
 
     while (history.size < settings.guessCount) {
         val guess = settings.interfaceStyle.getInput().uppercase()
-        // enforce hard mode
-        if (guess.isValidInput(history, settings, valids)) {
-            val check = wordle(actual, guess)
-            history.add(Round(guess, check))
-        } else {
-            println("invalid word: $guess")
+        when (val validity = isValidInput(history, settings, valids, guess)) {
+            is GuessCheck.Invalid.MissingLetters -> println("missing letter: ${validity.letters}")
+            GuessCheck.Invalid.NotInWordList -> println("invalid word: $guess")
+            GuessCheck.Valid -> history.add(Round(guess, wordle(actual, guess)))
         }
 
         settings.interfaceStyle.display(history)
@@ -28,9 +25,7 @@ fun main() {
         }
     }
 
-    if (history.size <= settings.guessCount &&
-            history.last().check.checkAllCorrect()
-    ) {
+    if (history.size <= settings.guessCount && history.last().check.checkAllCorrect()) {
         println("You Win")
     } else if (history.size >= settings.guessCount) {
         println("You Lose")
@@ -56,48 +51,67 @@ private fun String.asResource(): Result<String> =
         .mapCatching { it ?: throw Throwable("No Text in $this") }
 
 
-fun String.isValidInput(history: List<Round>, settings: Settings, wordList: List<String>): Boolean =
-    if (count() == settings.wordLength && wordList.contains(this)) {
+sealed interface GuessCheck {
+    object Valid : GuessCheck
+    sealed interface Invalid : GuessCheck {
+        object NotInWordList : Invalid
+        data class MissingLetters(val letters: List<Char>) : Invalid
+    }
+}
+
+fun isValidInput(history: List<Round>, settings: Settings, wordList: List<String>, input: String): GuessCheck =
+    if (input.count() == settings.wordLength && wordList.contains(input)) {
         if (settings.isHardMode){
-            this.isValidInHardMode(history)
+            isValidInHardMode(history, input)
         } else{
-            true
+            GuessCheck.Valid
         }
     } else {
-        false
+        GuessCheck.Invalid.NotInWordList
     }
 
-fun String.isValidInHardMode(history: List<Round>): Boolean =
+fun isValidInHardMode(history: List<Round>, input: String): GuessCheck =
+    checkCorrect(history, input).plus(checkAlmost(history, input))
+        .let { missingLetters ->
+            if (missingLetters.isNotEmpty()) {
+                GuessCheck.Invalid.MissingLetters(missingLetters)
+            } else {
+                GuessCheck.Valid
+            }
+        }
+
+private fun checkCorrect(history: List<Round>, input: String): List<Char> =
     history.flatMap { round -> round.check.getIndexesOf(LetterStatus.Correct).map { it to round.word[it] } }
         .fold(
-            initial = true,
-            operation = { isValid, (index, letter) -> isValid && this[index] == letter }
-        ) &&
-            history.flatMap { round -> round.check.getIndexesOf(LetterStatus.Almost).map { round.word[it] } }
-                .fold(
-                    initial = true,
-                    operation = { isValid, letter -> isValid && contains(letter) }
-                )
+            initial = emptyList<Char>(),
+            operation = { missingLetters, (index, letter) ->
+                if (input[index] != letter) {
+                    missingLetters.plus(letter)
+                } else {
+                    missingLetters
+                }
+            }
+        )
+
+private fun checkAlmost(history: List<Round>, input: String): List<Char> =
+    history.flatMap { round -> round.check.getIndexesOf(LetterStatus.Almost).map { round.word[it] } }
+        .fold(
+            initial = emptyList<Char>(),
+            operation = { missingLetters, letter ->
+                if (!input.contains(letter)) {
+                    missingLetters.plus(letter)
+                } else {
+                    missingLetters
+                }
+            }
+        )
 
 data class Settings(
-    val isHardMode: Boolean,
+    val isHardMode: Boolean = true,
     val wordLength: Int = 5,
     val guessCount: Int = 6,
     val interfaceStyle: InterfaceStyle = CLI(ConsoleOutputStyle.Color)
 )
-
-
-// Status of a letter in a guess
-enum class LetterStatus {
-    Correct, Almost, Unused
-}
-
-fun List<LetterStatus>.getIndexesOf(letterStatus: LetterStatus): List<Int> =
-    mapIndexedNotNull { i, s -> if (s == letterStatus) i else null }
-
-fun List<LetterStatus>.checkAllCorrect(): Boolean =
-    none { it != LetterStatus.Correct }
-
 
 // A record of a round played, the word guessed and the status of each letter in the word
 data class Round(val word: String, val check: List<LetterStatus>)
