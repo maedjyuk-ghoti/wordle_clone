@@ -5,17 +5,17 @@ sealed interface InterfaceStyle {
 
 data class CLI(private val style: ConsoleOutputStyle) : InterfaceStyle {
     companion object {
-        private const val clearConsole: String = "\u001b[H\u001b[2J"
+        private const val CLEAR_CONSOLE_STRING: String = "\u001b[H\u001b[2J"
     }
 
     override fun getInput(): String =
-        readLine() ?: ""
+        readlnOrNull() ?: ""
 
     override fun display(history: List<Round>) =
         println(
             history.joinToString(
                 separator = "\n",
-                prefix = "$clearConsole\n",
+                prefix = "$CLEAR_CONSOLE_STRING\n",
                 transform = ::format
             )
         )
