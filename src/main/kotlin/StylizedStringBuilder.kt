@@ -7,7 +7,7 @@ data class StylizedStringBuilder(
         modifiers.joinToString(
             separator = ";",
             prefix = "\u001b[",
-            postfix = "m$s$reset",
+            postfix = "m$s$RESET_STRING",
             transform = { it.v.toString() }
         )
 
@@ -27,7 +27,7 @@ data class StylizedStringBuilder(
     }
 
     companion object {
-        private const val reset = "\u001b[0m"
+        private const val RESET_STRING: String = "\u001b[0m"
     }
 
     sealed interface Modifier {
