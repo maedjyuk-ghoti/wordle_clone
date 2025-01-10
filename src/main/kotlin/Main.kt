@@ -83,7 +83,7 @@ fun isValidInHardMode(history: List<Round>, input: String): GuessCheck =
 private fun checkCorrect(history: List<Round>, input: String): List<Char> =
     history.flatMap { round -> round.check.getIndexesOf(LetterStatus.Correct).map { it to round.word[it] } }
         .fold(
-            initial = emptyList<Char>(),
+            initial = emptyList(),
             operation = { missingLetters, (index, letter) ->
                 if (input[index] != letter) {
                     missingLetters.plus(letter)
@@ -96,7 +96,7 @@ private fun checkCorrect(history: List<Round>, input: String): List<Char> =
 private fun checkAlmost(history: List<Round>, input: String): List<Char> =
     history.flatMap { round -> round.check.getIndexesOf(LetterStatus.Almost).map { round.word[it] } }
         .fold(
-            initial = emptyList<Char>(),
+            initial = emptyList(),
             operation = { missingLetters, letter ->
                 if (!input.contains(letter)) {
                     missingLetters.plus(letter)
