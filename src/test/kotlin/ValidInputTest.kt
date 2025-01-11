@@ -8,7 +8,7 @@ class ValidInputTest {
         val easySettings: Settings = Settings(isHardMode = false)
         val hardSettings: Settings = Settings(isHardMode = true)
 
-        val testList: List<String> = listOf("aaaaa", "abcde")
+        val testList: List<String> = listOf("aaaaa", "abcde", "bcdef")
     }
 
     @Test
@@ -27,7 +27,7 @@ class ValidInputTest {
 
     @Test
     fun `isValidInHardMode is true for first word`() {
-        val validity = isValidInHardMode(emptyList(), "aaaaa")
+        val validity = isValidInput(emptyList(), hardSettings, testList, "aaaaa")
 
         assertEquals(GuessCheck.Valid, validity)
     }
@@ -40,8 +40,7 @@ class ValidInputTest {
                 check = listOf(LetterStatus.Almost, LetterStatus.Unused, LetterStatus.Unused, LetterStatus.Unused, LetterStatus.Unused)
             )
         )
-
-        val validity = isValidInHardMode(history, "bcdef")
+        val validity = isValidInput(history, hardSettings, testList, "bcdef")
 
         assertEquals(GuessCheck.Invalid.MissingLetters(listOf('a')), validity)
     }
