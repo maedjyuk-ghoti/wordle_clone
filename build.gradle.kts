@@ -28,3 +28,9 @@ tasks.withType<KotlinCompile>() {
 application {
     mainClass.set("MainKt")
 }
+
+// By default, the system.in of your Gradle build is not wired up with the system.in of the run (JavaExec) task.
+// https://stackoverflow.com/a/13172566
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}
