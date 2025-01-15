@@ -1,6 +1,9 @@
 sealed interface InterfaceStyle {
-    fun display(history: List<Round>)
     fun getInput(): String
+    fun display(history: List<Round>)
+    fun display(state: IntermediateRound)
+    fun displayWin()
+    fun displayLose()
 }
 
 data class CLI(private val style: ConsoleOutputStyle) : InterfaceStyle {
@@ -26,4 +29,21 @@ data class CLI(private val style: ConsoleOutputStyle) : InterfaceStyle {
                 separator = "",
                 transform = { (c, s) -> style.encode(" $c ", s) }
             )
+
+    override fun display(state: IntermediateRound) {
+        when (state.validity) {
+            is GuessCheck.Invalid.MissingLetters -> println("missing letter: ${state.validity.letters}")
+            GuessCheck.Invalid.NotInWordList -> println("invalid word: ${state.guess}")
+            GuessCheck.Valid -> display(state.history)
+        }
+    }
+
+    override fun displayWin() {
+        println("You Win")
+    }
+
+    override fun displayLose() {
+        println("You Lose")
+    }
+
 }

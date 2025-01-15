@@ -5,31 +5,28 @@ fun main() {
     val answers: List<String> = getAnswers().getOrThrow()
     val actual: String = answers[Random(System.currentTimeMillis()).nextInt(answers.count())]
     val valids: List<String> = answers + getValids().getOrThrow()
-    val history = mutableListOf<Round>()
+    val history = mutableListOf<Round>() // todo make this immutable
 
-    // display initial board state and round info
-    settings.interfaceStyle.display(history)
+    generateSequence { settings.interfaceStyle.getInput().uppercase() }
+        .map { guess ->
+            val validity = isValidInput(history, settings, valids, guess)
+            if (validity == GuessCheck.Valid) history.add(Round(guess, wordle(actual, guess)))
 
-    while (history.size < settings.guessCount) {
-        val guess = settings.interfaceStyle.getInput().uppercase()
-        when (val validity = isValidInput(history, settings, valids, guess)) {
-            is GuessCheck.Invalid.MissingLetters -> println("missing letter: ${validity.letters}")
-            GuessCheck.Invalid.NotInWordList -> println("invalid word: $guess")
-            GuessCheck.Valid -> history.add(Round(guess, wordle(actual, guess)))
+            IntermediateRound(history, guess, validity)
         }
-
-        settings.interfaceStyle.display(history)
-
-        if (history.isNotEmpty() && history.last().check.checkAllCorrect()) {
-            break
+        .onEach(settings.interfaceStyle::display)
+        .filter { it.validity == GuessCheck.Valid } // only take valid guesses
+        .map(IntermediateRound::history)
+        .take(settings.guessCount) // restrict to the number of guesses
+        .takeWhile { it.isEmpty() || !it.last().check.checkAllCorrect() } // stop early if a guess is correct
+        .last() // only evaluate win/loss based on final guess
+        .let {
+            if (it.size <= settings.guessCount && it.last().check.checkAllCorrect()) {
+                settings.interfaceStyle.displayWin()
+            } else {
+                settings.interfaceStyle.displayLose()
+            }
         }
-    }
-
-    if (history.size <= settings.guessCount && history.last().check.checkAllCorrect()) {
-        println("You Win")
-    } else if (history.size >= settings.guessCount) {
-        println("You Lose")
-    }
 }
 
 
@@ -115,3 +112,6 @@ data class Settings(
 
 // A record of a round played, the word guessed and the status of each letter in the word
 data class Round(val word: String, val check: List<LetterStatus>)
+
+// The state of the game after a user guesses
+data class IntermediateRound(val history: List<Round>, val guess: String, val validity: GuessCheck)
